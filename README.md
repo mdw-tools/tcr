@@ -1,2 +1,1 @@
-# programming-workflows
-Tools facilitating TDD, TCR, whatever...
+# tcr.sh
