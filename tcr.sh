@@ -17,6 +17,8 @@ function commit() {
 }
 function revert() {
     echo
+    echo "less is more" | tee >(pbcopy)
+    git clean -df
     git reset --hard
 }
 
