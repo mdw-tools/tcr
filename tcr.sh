@@ -8,16 +8,18 @@ function test() {
     echo
     cd `git rev-parse --show-toplevel`
     go fmt ./...
-    go test -v ./...
+    go test ./...
 }
 function commit() {
     echo
     git add . 
     git commit -m "tcr"
+    return 0
 }
 function revert() {
     echo
     echo "less is more" | tee >(pbcopy)
+    echo
     git clean -df
     git reset --hard
 }
