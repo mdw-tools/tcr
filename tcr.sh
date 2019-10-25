@@ -6,7 +6,6 @@
 
 function test() {
     echo
-
     curl "http://localhost:7890/stopwatch/reset" &>/dev/null # reset timer
     cd `git rev-parse --show-toplevel` # navigate to top-level of git repo
     git status --porcelain -u | while read x # run goimports on any files that have changed
