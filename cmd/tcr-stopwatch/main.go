@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -13,7 +14,7 @@ func main() {
 		started = time.Now()
 	})
 	router.HandleFunc("/stopwatch", func(response http.ResponseWriter, _ *http.Request) {
-		io.WriteString(response, elapsed())
+		io.WriteString(response, elapsed(time.Since(started)))
 	})
 	router.HandleFunc("/", func(response http.ResponseWriter, _ *http.Request) {
 		io.WriteString(response, uiHTML)
@@ -28,10 +29,15 @@ func main() {
 
 var started = time.Now()
 
-func elapsed() string {
-	return time.Since(started).Round(time.Second).String()
+func elapsed(d time.Duration) string {
+	d = d.Round(time.Second)
+	h := d / time.Hour
+	d -= h * time.Hour
+	m := d / time.Minute
+	d -= m * time.Minute
+	s := d / time.Second
+	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
 }
-
 const uiHTML = `<html>
 <head>
   <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
