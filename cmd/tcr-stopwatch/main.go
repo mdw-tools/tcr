@@ -40,16 +40,14 @@ func elapsed(d time.Duration) string {
 }
 const uiHTML = `<html>
 <head>
-  <script type="text/javascript" 
-          src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
-  </script>
   <script type="text/javascript">
       setInterval(function() {
-        $.ajax("/stopwatch", {
-          success: function(data) {
-            document.body.innerHTML = data;
-          }
-        });
+		var opts = {method: 'GET', headers: {}};
+		fetch('/stopwatch', opts).then(function (body) {
+            body.text().then(function (data) {
+              document.body.innerHTML = data; 
+            });
+		});
       }, 1000);
   </script>
 </head>
