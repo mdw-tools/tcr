@@ -1,20 +1,29 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"sync"
 	"time"
 )
 
 func main() {
+	var (
+		mutex   sync.Mutex
+		started = time.Now()
+	)
+
 	router := http.NewServeMux()
 	router.HandleFunc("/stopwatch/reset", func(http.ResponseWriter, *http.Request) {
+		mutex.Lock()
 		started = time.Now()
+		mutex.Unlock()
 	})
 	router.HandleFunc("/stopwatch", func(response http.ResponseWriter, _ *http.Request) {
-		io.WriteString(response, elapsed(time.Since(started)))
+		mutex.Lock()
+		io.WriteString(response, time.Since(started).Round(time.Second).String())
+		mutex.Unlock()
 	})
 	router.HandleFunc("/", func(response http.ResponseWriter, _ *http.Request) {
 		io.WriteString(response, uiHTML)
@@ -27,31 +36,21 @@ func main() {
 	}
 }
 
-var started = time.Now()
-
-func elapsed(d time.Duration) string {
-	d = d.Round(time.Second)
-	h := d / time.Hour
-	d -= h * time.Hour
-	m := d / time.Minute
-	d -= m * time.Minute
-	s := d / time.Second
-	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
-}
-const uiHTML = `<html>
-<head>
-  <script type="text/javascript">
+const uiHTML = `
+<html>
+  <head>
+    <script type="text/javascript">
       setInterval(function() {
-		var opts = {method: 'GET', headers: {}};
-		fetch('/stopwatch', opts).then(function (body) {
-            body.text().then(function (data) {
-              document.body.innerHTML = data; 
-            });
-		});
+        var opts = {method: 'GET', headers: {}};
+        fetch('/stopwatch', opts).then(function (body) {
+          body.text().then(function (data) {
+            document.body.innerHTML = data; 
+          });
+        });
       }, 1000);
-  </script>
-</head>
-<body style="font-family: monospace;">
-</body>
+    </script>
+  </head>
+  <body style="font-family: monospace; color: #ffffff; background-color: #000000;">
+  </body>
 </html>
 `
