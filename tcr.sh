@@ -6,13 +6,14 @@
 
 function test() {
     echo
+    curl "http://localhost:7890/stopwatch/reset" &>/dev/null
     cd `git rev-parse --show-toplevel`
     go fmt ./...
     go test ./...
 }
 function commit() {
     echo
-    git add . 
+    git add .
     git commit -m "tcr"
     return 0
 }
