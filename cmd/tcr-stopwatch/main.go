@@ -56,7 +56,7 @@ func renderDuration(duration time.Duration) string {
 }
 
 func stylize(duration time.Duration) string {
-	seconds := int(duration.Seconds()) * 5
+	seconds := int(duration.Seconds()) * 3
 	var red byte = 31
 	var green byte = 221
 	const blue byte = 31
