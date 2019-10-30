@@ -13,7 +13,7 @@ function test() {
       goimports -w ${x:2} # "M blah/main.go"
     done
     go fmt ./...
-    go test ./...
+    make
 }
 function commit() {
     echo
