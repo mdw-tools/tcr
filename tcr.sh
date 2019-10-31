@@ -10,10 +10,12 @@ function test() {
     cd `git rev-parse --show-toplevel` # navigate to top-level of git repo
     git status --porcelain -u | while read x # run goimports on any files that have changed
     do
+      # TODO: only run goimports on .go files!
       goimports -w ${x:2} # "M blah/main.go"
     done
     go fmt ./...
     make
+    # TODO: echo how many tcr commits we currently have...
 }
 function commit() {
     echo
