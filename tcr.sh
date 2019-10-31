@@ -6,9 +6,9 @@
 
 function test() {
     echo
-    echo '/////////////'
-    echo '// TESTING //'
-    echo '/////////////'
+    echo '//////////'
+    echo '// TEST //'
+    echo '//////////'
     echo
     curl "http://localhost:7890/stopwatch/reset" &>/dev/null # reset timer (if running)
     cd `git rev-parse --show-toplevel` # navigate to top-level of git repo
@@ -16,9 +16,9 @@ function test() {
 }
 function commit() {
     echo
-    echo '////////////////'
-    echo '// COMMITTING //'
-    echo '////////////////'
+    echo '////////////'
+    echo '// COMMIT //'
+    echo '////////////'
     echo
     git add .
     git commit -m "tcr"
@@ -32,9 +32,9 @@ function commit() {
 }
 function revert() {
     echo
-    echo '///////////////'
-    echo '// REVERTING //'
-    echo '///////////////'
+    echo '////////////'
+    echo '// REVERT //'
+    echo '////////////'
     echo
     echo "less is more" | tee >(pbcopy)
     echo
