@@ -12,7 +12,13 @@ function test() {
     echo
     curl "http://localhost:7890/stopwatch/reset" &>/dev/null # reset timer (if running)
     cd `git rev-parse --show-toplevel` # navigate to top-level of git repo
-    make tcr
+    if test -f "go.mod"; then
+        go mod tidy
+        go fmt ./...
+        go test -v -short ./...
+    else
+        make
+    fi
 }
 function commit() {
     echo
