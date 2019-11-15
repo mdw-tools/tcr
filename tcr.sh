@@ -14,6 +14,20 @@ function test() {
     curl "http://localhost:7890/stopwatch/reset" &>/dev/null # reset timer (if running)
     make
 }
+function tcr_commit_count() {
+    count=0
+    echo $count
+    git log --oneline | while read line ; do
+        case "$line" in
+            *tcr*)
+                ((count++));
+            ;;
+            *)
+                return $count
+        esac
+    done
+    return $count
+}
 function commit() {
     echo
     echo '-- COMMIT --'
@@ -21,7 +35,6 @@ function commit() {
     git add .
     git commit -m "tcr"
     echo
-    source `dirname $0`/git.sh
     printf 'TCR commit count: %d\n' $(tcr_commit_count)
     echo
     times
