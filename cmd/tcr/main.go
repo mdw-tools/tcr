@@ -78,8 +78,14 @@ func Revert() bool {
 	return true
 }
 func revertState() {
+	revertToPreviousCommit()
+	clearClipboardContents()
+}
+func revertToPreviousCommit() {
 	fmt.Println(executeOrFatal(exec.Command("git", "clean", "-df"), ""))
 	fmt.Println(executeOrFatal(exec.Command("git", "reset", "--hard"), ""))
+}
+func clearClipboardContents(){
 	fmt.Println(executeOrFatal(exec.Command("pbcopy", "less is more"), ""))
 }
 func printSummary(duration time.Duration) {
