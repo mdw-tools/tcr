@@ -83,9 +83,9 @@ func revertState() {
 	fmt.Println(executeOrFatal(exec.Command("pbcopy", "less is more"), ""))
 }
 func printSummary(duration time.Duration) {
-	fmt.Println("Root:", workingDirectory())
-	fmt.Println("Commit count:", getTCRCommitCount())
-	fmt.Println("Execution time:", duration.String())
+	fmt.Println("Location:", workingDirectory())
+	fmt.Println("Duration:", duration)
+	fmt.Println("Commits:", getTCRCommitCount())
 }
 func workingDirectory() string {
 	dir, _ := os.Getwd()
