@@ -76,21 +76,9 @@ func clearClipboardContents() {
 func printSummary(duration time.Duration) {
 	fmt.Println("Location:", workingDirectory())
 	fmt.Println("Duration:", duration)
-	fmt.Println("Commits:", getTCRCommitCount())
+	fmt.Println("Commits:", exec.GetTCRCommitCount())
 }
 func workingDirectory() string {
 	dir, _ := os.Getwd()
 	return dir
-}
-func getTCRCommitCount() (count int) {
-	rawLog := exec.RunOrFatal("", "git", "log", "--oneline")
-	logLines := strings.Split(rawLog, "\n")
-	for _, line := range logLines {
-		if strings.HasSuffix(line, " tcr") {
-			count++
-		} else {
-			break
-		}
-	}
-	return count
 }
