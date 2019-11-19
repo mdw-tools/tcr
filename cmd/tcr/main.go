@@ -1,3 +1,6 @@
+// TCR: test && commit || revert
+// codified by Kent Beck
+// https://medium.com/@kentbeck_7670/test-commit-revert-870bbd756864
 package main
 
 import (
@@ -9,10 +12,6 @@ import (
 	"strings"
 	"time"
 )
-
-// TCR: test && commit || revert
-// codified by Kent Beck
-// https://medium.com/@kentbeck_7670/test-commit-revert-870bbd756864
 
 func main() {
 	resetStopwatch()
