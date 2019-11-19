@@ -5,12 +5,12 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/mdwhatcott/tcr.sh/exec"
 )
 
 func main() {
@@ -38,26 +38,12 @@ func printBanner(banner string) {
 	fmt.Println()
 }
 func executeTests() bool {
-	output, err := execute(exec.Command("make"), getRepositoryRoot())
+	output, err := exec.Run(getRepositoryRoot(), "make")
 	fmt.Println(strings.TrimSpace(output))
 	return err == nil
 }
 func getRepositoryRoot() string {
-	return strings.TrimSpace(executeOrFatal(exec.Command("git", "rev-parse", "--show-toplevel"), ""))
-}
-func execute(command *exec.Cmd, directory string) (output string, err error) {
-	if directory != "" {
-		command.Dir = directory
-	}
-	out, err := command.CombinedOutput()
-	return string(out), err
-}
-func executeOrFatal(command *exec.Cmd, directory string) string {
-	output, err := execute(command, directory)
-	if err != nil {
-		log.Fatal(err)
-	}
-	return output
+	return strings.TrimSpace(exec.RunOrFatal("", "git", "rev-parse", "--show-toplevel"))
 }
 func Commit() bool {
 	printBanner("-- COMMIT --")
@@ -66,8 +52,8 @@ func Commit() bool {
 	return true
 }
 func commitChanges() {
-	_, _ = execute(exec.Command("git", "add", "."), "")
-	output, _ := execute(exec.Command("git", "commit", "-m", "tcr"), "")
+	_, _ = exec.Run("", "git", "add", ".")
+	output, _ := exec.Run("", "git", "commit", "-m", "tcr")
 	fmt.Println(strings.TrimSpace(output))
 }
 func Revert() bool {
@@ -81,11 +67,11 @@ func revertState() {
 	clearClipboardContents()
 }
 func revertToPreviousCommit() {
-	fmt.Println(executeOrFatal(exec.Command("git", "clean", "-df"), ""))
-	fmt.Println(executeOrFatal(exec.Command("git", "reset", "--hard"), ""))
+	fmt.Println(exec.RunOrFatal("", "git", "clean", "-df"))
+	fmt.Println(exec.RunOrFatal("", "git", "reset", "--hard"))
 }
-func clearClipboardContents(){
-	fmt.Println(executeOrFatal(exec.Command("pbcopy", "less is more"), ""))
+func clearClipboardContents() {
+	fmt.Println(exec.RunOrFatal("", "pbcopy", "less is more"))
 }
 func printSummary(duration time.Duration) {
 	fmt.Println("Location:", workingDirectory())
@@ -97,7 +83,7 @@ func workingDirectory() string {
 	return dir
 }
 func getTCRCommitCount() (count int) {
-	rawLog := executeOrFatal(exec.Command("git", "log", "--oneline"), "")
+	rawLog := exec.RunOrFatal("", "git", "log", "--oneline")
 	logLines := strings.Split(rawLog, "\n")
 	for _, line := range logLines {
 		if strings.HasSuffix(line, " tcr") {
