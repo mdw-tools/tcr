@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/mdwhatcott/tcr.sh/exec"
+	"github.com/mdwhatcott/tcr/exec"
 )
 
 func main() {

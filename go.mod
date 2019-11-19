@@ -1,3 +1,3 @@
-module github.com/mdwhatcott/tcr.sh
+module github.com/mdwhatcott/tcr
 
 go 1.13
