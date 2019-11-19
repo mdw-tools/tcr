@@ -17,30 +17,30 @@ import (
 func main() {
 	started := time.Now()
 	_ = Test() && Commit() || Revert()
-	printBanner(time.Since(started).String())
+	printSummary(time.Since(started))
 }
 
 func Test() bool {
 	resetStopwatch()
-	printWorkingDirectory()
 	printBanner("-- TEST --")
 	return executeTests()
 }
+
 func resetStopwatch() {
 	_, _ = http.Get("http://localhost:7890/stopwatch/reset")
 }
-func printWorkingDirectory() {
-	fmt.Println()
+func workingDirectory() string {
 	dir, _ := os.Getwd()
-	fmt.Println(dir)
+	return dir
 }
 func printBanner(banner string) {
 	fmt.Println()
 	fmt.Println(banner)
+	fmt.Println()
 }
 func executeTests() bool {
 	output, err := execute(exec.Command("make"), getRepositoryRoot())
-	fmt.Println(output)
+	fmt.Println(strings.TrimSpace(output))
 	return err == nil
 }
 func getRepositoryRoot() string {
@@ -60,15 +60,15 @@ func executeOrFatal(command *exec.Cmd, directory string) string {
 	}
 	return output
 }
-
 func Commit() bool {
 	printBanner("-- COMMIT --")
 	_, _ = execute(exec.Command("git", "add", "."), "")
-	fmt.Println(execute(exec.Command("git", "commit", "-m", "tcr"), ""))
-	printBanner(fmt.Sprintf("TCR commit count: %d", getTCRCommitCount()))
+	output, _ := execute(exec.Command("git", "commit", "-m", "tcr"), "")
+	fmt.Println(strings.TrimSpace(output))
 	printBanner("-- OK --")
 	return true
 }
+
 func getTCRCommitCount() int {
 	output := executeOrFatal(exec.Command("git", "log", "--oneline"), "")
 	lines := strings.Split(output, "\n")
@@ -82,7 +82,6 @@ func getTCRCommitCount() int {
 	}
 	return count
 }
-
 func Revert() bool {
 	printBanner("-- REVERT --")
 	fmt.Println(executeOrFatal(exec.Command("git", "clean", "-df"), ""))
@@ -90,4 +89,10 @@ func Revert() bool {
 	fmt.Println(executeOrFatal(exec.Command("pbcopy", "less is more"), ""))
 	printBanner("-- ERROR --")
 	return true
+}
+
+func printSummary(duration time.Duration) {
+	fmt.Println("Root:", workingDirectory())
+	fmt.Println("Commit count:", getTCRCommitCount())
+	fmt.Println("Execution time:", duration.String())
 }
