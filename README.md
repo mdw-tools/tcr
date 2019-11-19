@@ -1,4 +1,4 @@
-# tcr.sh
+# tcr
 
 ## Configuring as an "external tool" in Goland
 
