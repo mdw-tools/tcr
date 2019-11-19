@@ -15,23 +15,23 @@ import (
 // https://medium.com/@kentbeck_7670/test-commit-revert-870bbd756864
 
 func main() {
-	started := time.Now()
-	_ = Test() && Commit() || Revert()
-	printSummary(time.Since(started))
-}
-
-func Test() bool {
 	resetStopwatch()
-	printBanner("-- TEST --")
-	return executeTests()
+	printSummary(timed(TCR))
 }
-
 func resetStopwatch() {
 	_, _ = http.Get("http://localhost:7890/stopwatch/reset")
 }
-func workingDirectory() string {
-	dir, _ := os.Getwd()
-	return dir
+func TCR() {
+	_ = Test() && Commit() || Revert()
+}
+func timed(action func()) time.Duration {
+	started := time.Now()
+	action()
+	return time.Since(started)
+}
+func Test() bool {
+	printBanner("-- TEST --")
+	return executeTests()
 }
 func printBanner(banner string) {
 	fmt.Println()
@@ -62,18 +62,39 @@ func executeOrFatal(command *exec.Cmd, directory string) string {
 }
 func Commit() bool {
 	printBanner("-- COMMIT --")
-	_, _ = execute(exec.Command("git", "add", "."), "")
-	output, _ := execute(exec.Command("git", "commit", "-m", "tcr"), "")
-	fmt.Println(strings.TrimSpace(output))
+	commitChanges()
 	printBanner("-- OK --")
 	return true
 }
-
-func getTCRCommitCount() int {
-	output := executeOrFatal(exec.Command("git", "log", "--oneline"), "")
-	lines := strings.Split(output, "\n")
-	var count = 0
-	for _, line := range lines {
+func commitChanges() {
+	_, _ = execute(exec.Command("git", "add", "."), "")
+	output, _ := execute(exec.Command("git", "commit", "-m", "tcr"), "")
+	fmt.Println(strings.TrimSpace(output))
+}
+func Revert() bool {
+	printBanner("-- REVERT --")
+	revertState()
+	printBanner("-- ERROR --")
+	return true
+}
+func revertState() {
+	fmt.Println(executeOrFatal(exec.Command("git", "clean", "-df"), ""))
+	fmt.Println(executeOrFatal(exec.Command("git", "reset", "--hard"), ""))
+	fmt.Println(executeOrFatal(exec.Command("pbcopy", "less is more"), ""))
+}
+func printSummary(duration time.Duration) {
+	fmt.Println("Root:", workingDirectory())
+	fmt.Println("Commit count:", getTCRCommitCount())
+	fmt.Println("Execution time:", duration.String())
+}
+func workingDirectory() string {
+	dir, _ := os.Getwd()
+	return dir
+}
+func getTCRCommitCount() (count int) {
+	rawLog := executeOrFatal(exec.Command("git", "log", "--oneline"), "")
+	logLines := strings.Split(rawLog, "\n")
+	for _, line := range logLines {
 		if strings.HasSuffix(line, " tcr") {
 			count++
 		} else {
@@ -81,18 +102,4 @@ func getTCRCommitCount() int {
 		}
 	}
 	return count
-}
-func Revert() bool {
-	printBanner("-- REVERT --")
-	fmt.Println(executeOrFatal(exec.Command("git", "clean", "-df"), ""))
-	fmt.Println(executeOrFatal(exec.Command("git", "reset", "--hard"), ""))
-	fmt.Println(executeOrFatal(exec.Command("pbcopy", "less is more"), ""))
-	printBanner("-- ERROR --")
-	return true
-}
-
-func printSummary(duration time.Duration) {
-	fmt.Println("Root:", workingDirectory())
-	fmt.Println("Commit count:", getTCRCommitCount())
-	fmt.Println("Execution time:", duration.String())
 }
