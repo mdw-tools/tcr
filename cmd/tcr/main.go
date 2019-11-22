@@ -14,71 +14,107 @@ import (
 )
 
 func main() {
-	resetStopwatch()
-	printSummary(timed(TCR))
+	runner := new(Runner)
+	runner.TCR()
+	fmt.Println(runner)
 }
-func resetStopwatch() {
-	_, _ = http.Get("http://localhost:7890/stopwatch/reset")
+
+type Runner struct {
+	started time.Time
+	stopped time.Time
+
+	testReport   string
+	gitReport    string
+	finalReport  *strings.Builder
+
+	commitCount int
+	testsPassed bool
 }
-func TCR() {
-	_ = Test() && Commit() || Revert()
+
+func (this *Runner) TCR() {
+	defer this.resetStopWatch()
+
+	_ = this.Test() &&
+		this.Commit() ||
+		this.Revert()
 }
-func timed(action func()) time.Duration {
-	started := time.Now()
-	action()
-	return time.Since(started)
+
+func (this *Runner) resetStopWatch() {
+	this.commitCount = exec.GetTCRCommitCount()
+	URL := fmt.Sprintf(
+		"http://localhost:7890/stopwatch/reset?commits=%d&passed=%t",
+		this.commitCount,
+		this.testsPassed,
+	)
+	_, _ = http.Get(URL)
 }
-func Test() bool {
-	printBanner("-- TEST --")
-	return executeTests()
-}
-func printBanner(banner string) {
-	fmt.Println()
-	fmt.Println(banner)
-	fmt.Println()
-}
-func executeTests() bool {
+
+func (this *Runner) Test() bool {
+	this.start()
+	defer this.stop()
+
 	output, err := exec.Run(getRepositoryRoot(), "make")
-	fmt.Println(strings.TrimSpace(output))
-	return err == nil
+	this.testReport = strings.TrimSpace(output)
+	this.testsPassed = err == nil
+	return this.testsPassed
+
 }
-func getRepositoryRoot() string {
-	return strings.TrimSpace(exec.RunOrFatal("", "git", "rev-parse", "--show-toplevel"))
-}
-func Commit() bool {
-	printBanner("-- COMMIT --")
-	commitChanges()
-	printBanner("-- OK --")
-	return true
-}
-func commitChanges() {
+func (this *Runner) start() { this.started = time.Now() }
+func (this *Runner) stop()  { this.stopped = time.Now() }
+
+func (this *Runner) Commit() bool {
 	_, _ = exec.Run("", "git", "add", ".")
 	output, _ := exec.Run("", "git", "commit", "-m", "tcr")
-	fmt.Println(strings.TrimSpace(output))
-}
-func Revert() bool {
-	printBanner("-- REVERT --")
-	revertState()
-	printBanner("-- ERROR --")
+	this.gitReport = strings.TrimSpace(output)
 	return true
 }
-func revertState() {
-	revertToPreviousCommit()
-	clearClipboardContents()
+
+func (this *Runner) Revert() bool {
+	this.gitReport += exec.RunOrFatal("", "git", "clean", "-df")
+	this.gitReport += exec.RunOrFatal("", "git", "reset", "--hard")
+	this.gitReport += exec.RunOrFatal("", "pbcopy", "less is more")
+	return true
 }
-func revertToPreviousCommit() {
-	fmt.Println(exec.RunOrFatal("", "git", "clean", "-df"))
-	fmt.Println(exec.RunOrFatal("", "git", "reset", "--hard"))
+
+func (this *Runner) String() string {
+	this.finalReport = new(strings.Builder)
+	this.printSummary()
+	this.printReport(this.gitReport)
+	this.printBanner("-- TEST --")
+	this.printReport(this.testReport)
+	return this.finalReport.String()
 }
-func clearClipboardContents() {
-	fmt.Println(exec.RunOrFatal("", "pbcopy", "less is more"))
+
+func (this *Runner) printReport(report string) {
+	this.finalReport.WriteString(report)
 }
-func printSummary(duration time.Duration) {
-	fmt.Println("Location:", workingDirectory())
-	fmt.Println("Duration:", duration)
-	fmt.Println("Commits:", exec.GetTCRCommitCount())
+func (this *Runner) printSummary() {
+	this.printBanner("-- SUMMARY --")
+	this.printData("Commits", this.commitCount)
+	this.printData("Duration", this.stopped.Sub(this.started))
+	this.printData("Location", workingDirectory())
+	this.printPassOrFail()
+}
+func (this *Runner) printBanner(banner string) {
+	this.finalReport.WriteString("\n\n")
+	this.finalReport.WriteString(banner)
+	this.finalReport.WriteString("\n\n")
+}
+func (this *Runner) printData(name string, data interface{}) {
+	fmt.Fprintln(this.finalReport, name+":", data)
 }
 func workingDirectory() string {
 	dir, _ := os.Getwd()
 	return dir
+}
+func (this *Runner) printPassOrFail() {
+	if this.testsPassed {
+		this.printBanner("-- OK --")
+	} else {
+		this.printBanner("-- FAIL --")
+	}
+}
+
+func getRepositoryRoot() string {
+	return strings.TrimSpace(exec.RunOrFatal("", "git", "rev-parse", "--show-toplevel"))
 }
