@@ -26,7 +26,7 @@ func main() {
 				"directory or is the first non-flag argument supplied.")
 		flag.PrintDefaults()
 	}
-	flag.StringVar(&makefile, "makefile", "go test -v ./...", "default makefile target definition")
+	flag.StringVar(&makefile, "makefile", "go fmt ./...\n\tgo test -v -timeout=1s ./...", "default makefile target definition")
 	flag.StringVar(&gitignore, "gitignore", ".idea/", ".gitignore file contents")
 	flag.StringVar(&editor, "editor", "goland", "editor to invoke")
 
