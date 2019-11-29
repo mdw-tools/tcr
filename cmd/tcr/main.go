@@ -16,7 +16,7 @@ import (
 func main() {
 	runner := new(Runner)
 	runner.TCR()
-	fmt.Println(runner)
+	fmt.Println(runner.String())
 }
 
 type Runner struct {
