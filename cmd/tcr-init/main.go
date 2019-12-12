@@ -85,16 +85,16 @@ func createGitIgnore(path, gitignore string) {
 }
 func initializeGoModule(path string) {
 	name := filepath.Base(path)
-	fmt.Println(exec.RunOrFatal(path, "go", "mod", "init", name))
+	fmt.Println(exec.RunFatal("go", exec.Args("mod", "init", name), exec.At(path)))
 	createFile(filepath.Join(path, name+"_test.go"), "package "+name)
 }
 func initializeGitRepository(path string) {
-	fmt.Println(exec.RunOrFatal(path, "git", "init"))
-	fmt.Println(exec.RunOrFatal(path, "git", "add", "."))
-	fmt.Println(exec.RunOrFatal(path, "git", "commit", "-m", "Initial commit."))
+	fmt.Println(exec.RunFatal("git", exec.Args("init"), exec.At(path)))
+	fmt.Println(exec.RunFatal("git", exec.Args("add", "."), exec.At(path)))
+	fmt.Println(exec.RunFatal("git", exec.Args("commit", "-m", "Initial commit."), exec.At(path)))
 }
 func startEditor(editor string, path string) {
-	fmt.Println(exec.RunOrFatal(path, editor, "."))
+	fmt.Println(exec.RunFatal(editor, exec.Args("."), exec.At(path)))
 }
 
 const (

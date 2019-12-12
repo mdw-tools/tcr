@@ -3,7 +3,7 @@ package exec
 import "strings"
 
 func GetTCRCommitCount() (count int) {
-	rawLog := RunOrFatal("", "git", "log", "--oneline")
+	rawLog := RunFatal("git", Args("log", "--oneline"))
 	logLines := strings.Split(rawLog, "\n")
 	for _, line := range logLines {
 		if strings.HasSuffix(line, " tcr") {

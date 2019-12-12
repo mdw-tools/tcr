@@ -16,16 +16,16 @@ import (
 func main() {
 	runner := new(Runner)
 	runner.TCR()
-	fmt.Println(runner.String())
+	fmt.Println(runner.FinalReport())
 }
 
 type Runner struct {
 	started time.Time
 	stopped time.Time
 
-	testReport   string
-	gitReport    string
-	finalReport  *strings.Builder
+	testReport  string
+	gitReport   string
+	finalReport *strings.Builder
 
 	commitCount int
 	testsPassed bool
@@ -53,7 +53,7 @@ func (this *Runner) Test() bool {
 	this.start()
 	defer this.stop()
 
-	output, err := exec.Run(getRepositoryRoot(), "make")
+	output, err := exec.Run("make", exec.At(getRepositoryRoot()), exec.Out(os.Stdout))
 	this.testReport = strings.TrimSpace(output)
 	this.testsPassed = err == nil
 	return this.testsPassed
@@ -61,60 +61,69 @@ func (this *Runner) Test() bool {
 }
 func (this *Runner) start() { this.started = time.Now() }
 func (this *Runner) stop()  { this.stopped = time.Now() }
+func (this *Runner) elapsed() time.Duration {
+	return this.stopped.Sub(this.started).Round(time.Millisecond)
+}
 
 func (this *Runner) Commit() bool {
-	_, _ = exec.Run("", "git", "add", ".")
-	output, _ := exec.Run("", "git", "commit", "-m", "tcr")
+	_, _ = exec.Run("git", exec.Args("add", "."))
+	output, _ := exec.Run("git", exec.Args("commit", "-m", "tcr"))
 	this.gitReport = strings.TrimSpace(output)
 	return true
 }
 
 func (this *Runner) Revert() bool {
-	this.gitReport += exec.RunOrFatal("", "git", "clean", "-df")
-	this.gitReport += exec.RunOrFatal("", "git", "reset", "--hard")
-	this.gitReport += exec.RunOrFatal("", "pbcopy", "less is more")
+	this.gitReport += exec.RunFatal("git", exec.Args("clean", "-df"), exec.Out(os.Stdout))
+	this.gitReport += exec.RunFatal("git", exec.Args("reset", "--hard"), exec.Out(os.Stdout))
+	this.gitReport += exec.RunFatal("pbcopy", exec.Args("less is more"), exec.Out(os.Stdout))
 	return true
 }
 
-func (this *Runner) String() string {
+func (this *Runner) FinalReport() string {
 	this.finalReport = new(strings.Builder)
-	this.printSummary()
+	if !this.testsPassed {
+		this.printSummary()
+	}
 	this.printReport(this.gitReport)
 	this.printBanner("-- TEST --")
 	this.printReport(this.testReport)
-	return this.finalReport.String()
+	if this.testsPassed {
+		this.printSummary()
+	}
+	return strings.TrimSpace(this.finalReport.String())
 }
 
 func (this *Runner) printReport(report string) {
 	this.finalReport.WriteString(report)
 }
 func (this *Runner) printSummary() {
-	this.printBanner("-- SUMMARY --")
-	this.printData("Commits", this.commitCount)
-	this.printData("Duration", this.stopped.Sub(this.started))
-	this.printData("Location", workingDirectory())
-	this.printPassOrFail()
+	fmt.Fprintln(this.finalReport)
+	fmt.Fprintln(this.finalReport)
+	fmt.Fprintf(this.finalReport,
+		"%s in [%v] with [%d] tcr commit(s) at %s",
+		this.passOrFail(),
+		this.elapsed(),
+		this.commitCount,
+		workingDirectory(),
+	)
 }
 func (this *Runner) printBanner(banner string) {
 	this.finalReport.WriteString("\n\n")
 	this.finalReport.WriteString(banner)
 	this.finalReport.WriteString("\n\n")
 }
-func (this *Runner) printData(name string, data interface{}) {
-	fmt.Fprintln(this.finalReport, name+":", data)
-}
 func workingDirectory() string {
 	dir, _ := os.Getwd()
 	return dir
 }
-func (this *Runner) printPassOrFail() {
+func (this *Runner) passOrFail() string {
 	if this.testsPassed {
-		this.printBanner("-- OK --")
+		return "OK"
 	} else {
-		this.printBanner("-- FAIL --")
+		return "FAIL"
 	}
 }
 
 func getRepositoryRoot() string {
-	return strings.TrimSpace(exec.RunOrFatal("", "git", "rev-parse", "--show-toplevel"))
+	return strings.TrimSpace(exec.RunFatal("git", exec.Args("rev-parse", "--show-toplevel")))
 }
