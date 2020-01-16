@@ -86,6 +86,8 @@ func createGitIgnore(path, gitignore string) {
 func initializeGoModule(path string) {
 	name := filepath.Base(path)
 	fmt.Println(exec.RunFatal("go", exec.Args("mod", "init", name), exec.At(path)))
+	fmt.Println(exec.RunFatal("go", exec.Args("get", "github.com/smartystreets/gunit")))
+	createFile(filepath.Join(path, name+".go"), "package "+name)
 	createFile(filepath.Join(path, name+"_test.go"), "package "+name)
 }
 func initializeGitRepository(path string) {
