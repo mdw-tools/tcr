@@ -85,8 +85,11 @@ func (this *Runner) FinalReport() string {
 		this.printSummary()
 	}
 	this.printReport(this.gitReport)
-	this.printBanner("-- TEST --")
-	this.printReport(this.testReport)
+	if !this.testsPassed {
+		this.printBanner("Test results repeated for convenience:")
+		fmt.Fprintln(this.finalReport)
+		this.printReport(this.testReport)
+	}
 	if this.testsPassed {
 		this.printSummary()
 	}
