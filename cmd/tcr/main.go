@@ -4,6 +4,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"net/http"
 	"os"
@@ -86,14 +87,28 @@ func (this *Runner) FinalReport() string {
 	}
 	this.printReport(this.gitReport)
 	if !this.testsPassed {
-		this.printBanner("Test results repeated for convenience:")
+		this.printBanner("Test failures repeated for convenience:")
 		fmt.Fprintln(this.finalReport)
-		this.printReport(this.testReport)
+		this.printReport(filterPassingPackages(this.testReport))
 	}
 	if this.testsPassed {
 		this.printSummary()
 	}
 	return strings.TrimSpace(this.finalReport.String())
+}
+
+func filterPassingPackages(report string) string {
+	var builder strings.Builder
+	scanner := bufio.NewScanner(strings.NewReader(report))
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "ok") {
+			continue
+		}
+		builder.WriteString(line)
+		builder.WriteString("\n")
+	}
+	return builder.String()
 }
 
 func (this *Runner) printReport(report string) {
