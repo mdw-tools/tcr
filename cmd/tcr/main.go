@@ -102,7 +102,10 @@ func filterPassingPackages(report string) string {
 	scanner := bufio.NewScanner(strings.NewReader(report))
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.HasPrefix(line, "ok") {
+		if strings.HasPrefix(line, "ok  \t") {
+			continue
+		}
+		if strings.HasPrefix(line, "?   \t") {
 			continue
 		}
 		builder.WriteString(line)
