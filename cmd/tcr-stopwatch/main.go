@@ -6,7 +6,9 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
 	"sync"
 	"time"
@@ -19,6 +21,14 @@ var (
 )
 
 func main() {
+	signals := make(chan os.Signal, 10)
+	signal.Notify(signals, os.Interrupt, os.Kill)
+	go func(){
+		for s := range signals {
+			log.Printf("[INFO] Shutdown initiated... (received: %s)", s.String())
+			os.Exit(0)
+		}
+	}()
 	router := http.NewServeMux()
 	router.HandleFunc("/stopwatch/reset", func(http.ResponseWriter, *http.Request) {
 		mutex.Lock()
