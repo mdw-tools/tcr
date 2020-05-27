@@ -10,5 +10,10 @@ func main() {
 	count := exec.GetTCRCommitCount()
 	fmt.Printf("Squashing [%d] commits into single, staged change set and opening smerge...\n", count)
 	fmt.Println(exec.RunFatal("git", exec.Args("reset", "--soft", fmt.Sprintf("HEAD~%d", count))))
-	_, _ = exec.Run("smerge", exec.Args("."))
+	output, err := exec.Run("smerge", exec.Args("."))
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	fmt.Println("Output:")
+	fmt.Println(output)
 }
