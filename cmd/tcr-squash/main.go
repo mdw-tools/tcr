@@ -8,6 +8,7 @@ import (
 
 func main() {
 	count := exec.GetTCRCommitCount()
-	fmt.Printf("Squashing [%d] commits into single, staged change set and opening smerge...\n", count)
+	fmt.Printf("Resetting [%d] commits into a single, staged change set...\n", count)
 	fmt.Println(exec.RunFatal("git", exec.Args("reset", "--soft", fmt.Sprintf("HEAD~%d", count))))
+	fmt.Println("Ready for commit!")
 }
