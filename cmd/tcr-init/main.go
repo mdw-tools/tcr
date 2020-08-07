@@ -88,8 +88,11 @@ func initializeGoModule(path string) {
 	name := filepath.Base(path)
 	name = strings.ReplaceAll(name, "-", "_")
 	name = strings.ReplaceAll(name, " ", "_")
+
 	fmt.Println(exec.RunFatal("go", exec.Args("mod", "init", name), exec.At(path)))
-	fmt.Println(exec.RunFatal("go", exec.Args("get", "github.com/smartystreets/gunit")))
+	fmt.Println(exec.RunFatal("go", exec.Args("get", "github.com/smartystreets/gunit"), exec.At(path)))
+	fmt.Println(exec.RunFatal("go", exec.Args("get", "github.com/smartystreets/assertions"), exec.At(path)))
+
 	createFile(filepath.Join(path, name+".go"), "package "+name)
 	createFile(filepath.Join(path, name+"_test.go"), "package "+name)
 }
