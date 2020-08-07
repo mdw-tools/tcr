@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/mdwhatcott/tcr/exec"
 )
@@ -85,6 +86,8 @@ func createGitIgnore(path, gitignore string) {
 }
 func initializeGoModule(path string) {
 	name := filepath.Base(path)
+	name = strings.ReplaceAll(name, "-", "_")
+	name = strings.ReplaceAll(name, " ", "_")
 	fmt.Println(exec.RunFatal("go", exec.Args("mod", "init", name), exec.At(path)))
 	fmt.Println(exec.RunFatal("go", exec.Args("get", "github.com/smartystreets/gunit")))
 	createFile(filepath.Join(path, name+".go"), "package "+name)
