@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os/exec"
+	"strings"
 )
 
 type option func(*exec.Cmd)
@@ -37,7 +38,7 @@ func Run(program string, options ...option) (output string, err error) {
 		option(command)
 	}
 	err = command.Run()
-	return buffer.String(), err
+	return strings.TrimSpace(buffer.String()), err
 }
 func RunFatal(program string, options ...option) string {
 	output, err := Run(program, options...)
