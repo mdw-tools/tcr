@@ -26,7 +26,7 @@ func main() {
 				"directory or is the first non-flag argument supplied.")
 		flag.PrintDefaults()
 	}
-	flag.StringVar(&makefile, "makefile", "go fmt ./...\n\tgo test -v -timeout=1s ./...", "default makefile target definition")
+	flag.StringVar(&makefile, "makefile", defaultMakefileContents, "default makefile content")
 	flag.StringVar(&gitignore, "gitignore", ".idea/", ".gitignore file contents")
 	flag.StringVar(&editor, "editor", "goland", "editor to invoke")
 
@@ -72,7 +72,7 @@ func pathExists(path string) (bool, error) {
 	return true, err
 }
 func createMakefile(path, makefile string) {
-	createFile(filepath.Join(path, "Makefile"), MakefileTemplate+makefile)
+	createFile(filepath.Join(path, "Makefile"), makefile)
 }
 func createFile(path, content string) {
 	err := ioutil.WriteFile(path, []byte(content), 0644)
@@ -100,5 +100,9 @@ func startEditor(editor string, path string) {
 }
 
 const (
-	MakefileTemplate = "#!/usr/bin/make -f\n\ntest:\n\t"
+	defaultMakefileContents = `#!/usr/bin/make -f
+test:
+	go fmt ./...
+	go test -cover -count=1 -timeout=1s -race -v ./...
+`
 )
