@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+var Version = "dev"
+
 var (
 	mutex   sync.Mutex
 	started = time.Now()
@@ -38,15 +40,15 @@ func main() {
 	})
 	router.HandleFunc("/stopwatch", func(response http.ResponseWriter, _ *http.Request) {
 		mutex.Lock()
-		io.WriteString(response, renderDurations(times))
+		_, _ = io.WriteString(response, renderDurations(times))
 		mutex.Unlock()
 	})
 	router.HandleFunc("/", func(response http.ResponseWriter, _ *http.Request) {
-		io.WriteString(response, uiHTML)
+		_, _ = io.WriteString(response, uiHTML)
 	})
 
 	address := "localhost:7890"
-	log.Printf("[INFO] Listening for web traffic on %s.", address)
+	log.Printf("[INFO] TCR Stopwatch [%s] listening for web traffic on %s.", Version, address)
 	go func() { _ = exec.Command("open", "http://"+address).Run() }()
 	if err := http.ListenAndServe(address, router); err != nil {
 		log.Fatal(err)
@@ -99,6 +101,7 @@ func renderDurations(durations []time.Duration) string {
 const uiHTML = `
 <html>
   <head>
+	<title>tcr-stopwatch</title>
     <script type="text/javascript">
       setInterval(function() {
         var opts = {method: 'GET', headers: {}};

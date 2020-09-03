@@ -5,6 +5,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -14,10 +15,23 @@ import (
 	"github.com/mdwhatcott/tcr/exec"
 )
 
+var Version = "dev"
+
 func main() {
-	runner := new(Runner)
+	flag.Usage = func() {
+
+	}
+	flag.Parse()
+
+	runner := newRunner(Version)
 	runner.TCR()
 	fmt.Print(runner.FinalReport())
+}
+
+func newRunner(version string) *Runner {
+	builder := new(strings.Builder)
+	fmt.Fprintf(builder, "tcr [%s]\n", version)
+	return &Runner{finalReport: builder}
 }
 
 type Runner struct {
