@@ -40,6 +40,9 @@ func main() {
 	flag.Parse()
 
 	path := resolvePath()
+	if module == "" {
+		module = filepath.Base(path)
+	}
 
 	log.Printf("tcr-init [%s]\n", Version)
 	createDirectory(path)
