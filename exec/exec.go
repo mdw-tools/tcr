@@ -43,7 +43,7 @@ func Run(program string, options ...option) (output string, err error) {
 func RunFatal(program string, options ...option) string {
 	output, err := Run(program, options...)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(output, err)
 	}
 	return output
 }
