@@ -108,22 +108,22 @@ func initializeGoModule(path string, module string) {
 		module = path
 	}
 	log.Println("Initializing go module:", module)
-	fmt.Println(exec.RunFatal("go", exec.Args("mod", "init", module), exec.At(path)))
-	fmt.Println(exec.RunFatal("go", exec.Args("get", "github.com/smartystreets/gunit"), exec.At(path)))
-	fmt.Println(exec.RunFatal("go", exec.Args("get", "github.com/smartystreets/assertions"), exec.At(path)))
+	fmt.Println(exec.RunFatal("go mod init " + module, exec.At(path)))
+	fmt.Println(exec.RunFatal("go get github.com/smartystreets/gunit", exec.At(path)))
+	fmt.Println(exec.RunFatal("go get github.com/smartystreets/assertions", exec.At(path)))
 
 	createFile(filepath.Join(path, name+".go"), "package "+name)
 	createFile(filepath.Join(path, name+"_test.go"), "package "+name)
 }
 func initializeGitRepository(path string) {
 	log.Println("Initializing git repository...")
-	fmt.Println(exec.RunFatal("git", exec.Args("init"), exec.At(path)))
-	fmt.Println(exec.RunFatal("git", exec.Args("add", "."), exec.At(path)))
-	fmt.Println(exec.RunFatal("git", exec.Args("commit", "-m", "Initial commit."), exec.At(path)))
+	fmt.Println(exec.RunFatal("git init", exec.At(path)))
+	fmt.Println(exec.RunFatal("git add .", exec.At(path)))
+	fmt.Println(exec.RunFatal("git commit -m 'Initial commit.'", exec.At(path)))
 }
 func startEditor(editor string, path string) {
 	log.Println("Starting editor...")
-	fmt.Println(exec.RunFatal(editor, exec.Args("."), exec.At(path)))
+	fmt.Println(exec.RunFatal(editor + " .", exec.At(path)))
 }
 
 const (

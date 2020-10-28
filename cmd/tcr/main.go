@@ -19,22 +19,26 @@ var Version = "dev"
 
 func main() {
 	flag.Usage = func() {
-
+		fmt.Fprintln(flag.CommandLine.Output(), "Usage of tcr:")
+		flag.CommandLine.PrintDefaults()
 	}
+	command := flag.String("command", "make", "The 'test' command.")
 	flag.Parse()
 
-	runner := newRunner(Version)
+	runner := newRunner(Version, *command)
 	runner.TCR()
 	fmt.Print(runner.FinalReport())
 }
 
-func newRunner(version string) *Runner {
+func newRunner(version, program string) *Runner {
 	builder := new(strings.Builder)
 	fmt.Fprintf(builder, "tcr [%s]\n", version)
-	return &Runner{finalReport: builder}
+	return &Runner{program: program, finalReport: builder}
 }
 
 type Runner struct {
+	program string
+
 	started time.Time
 	stopped time.Time
 
@@ -68,7 +72,7 @@ func (this *Runner) Test() bool {
 	this.start()
 	defer this.stop()
 
-	output, err := exec.Run("make", exec.At(getRepositoryRoot()), exec.Out(os.Stdout))
+	output, err := exec.Run(this.program, exec.At(getRepositoryRoot()), exec.Out(os.Stdout))
 	this.testReport = strings.TrimSpace(output)
 	this.testsPassed = err == nil
 	return this.testsPassed
@@ -81,16 +85,16 @@ func (this *Runner) elapsed() time.Duration {
 }
 
 func (this *Runner) Commit() bool {
-	_, _ = exec.Run("git", exec.Args("add", "."))
-	output, _ := exec.Run("git", exec.Args("commit", "-m", "tcr"))
+	_, _ = exec.Run("git add .")
+	output, _ := exec.Run("git commit -m tcr")
 	this.gitReport = strings.TrimSpace(output)
 	return true
 }
 
 func (this *Runner) Revert() bool {
-	this.gitReport += exec.RunFatal("git", exec.Args("clean", "-df"), exec.Out(os.Stdout))
-	this.gitReport += exec.RunFatal("git", exec.Args("reset", "--hard"), exec.Out(os.Stdout))
-	this.gitReport += exec.RunFatal("pbcopy", exec.Args("less is more"), exec.Out(os.Stdout))
+	this.gitReport += exec.RunFatal("git clean -df", exec.Out(os.Stdout))
+	this.gitReport += exec.RunFatal("git reset --hard", exec.Out(os.Stdout))
+	this.gitReport += exec.RunFatal("pbcopy 'less is more'", exec.Out(os.Stdout))
 	return true
 }
 
@@ -160,5 +164,5 @@ func (this *Runner) passOrFail() string {
 }
 
 func getRepositoryRoot() string {
-	return strings.TrimSpace(exec.RunFatal("git", exec.Args("rev-parse", "--show-toplevel")))
+	return strings.TrimSpace(exec.RunFatal("git rev-parse --show-toplevel"))
 }

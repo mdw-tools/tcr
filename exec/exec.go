@@ -23,15 +23,9 @@ func Out(writers ...io.Writer) option {
 	}
 }
 
-func Args(args ...string) option {
-	return func(command *exec.Cmd) {
-		command.Args = append(command.Args, args...)
-	}
-}
-
 func Run(program string, options ...option) (output string, err error) {
 	buffer := new(bytes.Buffer)
-	command := exec.Command(program)
+	command := exec.Command("bash", "-c", program)
 	command.Stdout = buffer
 	command.Stderr = buffer
 	for _, option := range options {
