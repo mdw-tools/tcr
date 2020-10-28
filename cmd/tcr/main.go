@@ -22,12 +22,19 @@ func main() {
 		fmt.Fprintln(flag.CommandLine.Output(), "Usage of tcr:")
 		flag.CommandLine.PrintDefaults()
 	}
-	command := flag.String("command", "make", "The 'test' command.")
+	command := flag.String("command", orDefault(os.Getenv("TCR_EXECUTABLE"), "make"), "The 'test' command.")
 	flag.Parse()
 
 	runner := newRunner(Version, *command)
 	runner.TCR()
 	fmt.Print(runner.FinalReport())
+}
+
+func orDefault(value, fallback string) string {
+	if value != "" {
+		return value
+	}
+	return fallback
 }
 
 func newRunner(version, program string) *Runner {
