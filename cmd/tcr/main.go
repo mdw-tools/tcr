@@ -63,6 +63,8 @@ func (this *Runner) TCR() {
 	_ = this.Test() &&
 		this.Commit() ||
 		this.Revert()
+
+	this.finalizeReport()
 }
 
 func (this *Runner) resetStopWatch() {
@@ -106,11 +108,18 @@ func (this *Runner) Revert() bool {
 }
 
 func (this *Runner) FinalReport() string {
+	return strings.TrimSpace(this.finalReport.String())
+}
+
+func (this *Runner) finalizeReport() {
 	this.finalReport = new(strings.Builder)
 	if !this.testsPassed {
 		this.printSummary()
 	}
-	this.printReport(this.gitReport)
+
+	this.printBanner("---")
+	this.printReport(strings.TrimSpace(this.gitReport))
+
 	if !this.testsPassed {
 		this.printBanner("Test failures repeated for convenience:")
 		fmt.Fprintln(this.finalReport)
@@ -119,7 +128,6 @@ func (this *Runner) FinalReport() string {
 	if this.testsPassed {
 		this.printSummary()
 	}
-	return strings.TrimSpace(this.finalReport.String())
 }
 
 func filterPassingPackages(report string) string {
@@ -143,8 +151,7 @@ func (this *Runner) printReport(report string) {
 	this.finalReport.WriteString(report)
 }
 func (this *Runner) printSummary() {
-	fmt.Fprintln(this.finalReport)
-	fmt.Fprintln(this.finalReport)
+	this.printBanner("---")
 	fmt.Fprintf(this.finalReport,
 		"%s in [%v] with [%d] tcr commit(s) at %s",
 		this.passOrFail(),
