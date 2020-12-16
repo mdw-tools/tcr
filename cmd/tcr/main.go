@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/mdwhatcott/tcr/exec"
+	"github.com/mdwhatcott/tcr/gotest"
 )
 
 var Version = "dev"
@@ -82,7 +83,7 @@ func (this *Runner) Test() bool {
 	defer this.stop()
 
 	output, err := exec.Run(this.program, exec.At(getRepositoryRoot()), exec.Out(os.Stdout))
-	this.testReport = strings.TrimSpace(output)
+	this.testReport = gotest.Format(strings.TrimSpace(output))
 	this.testsPassed = err == nil
 	return this.testsPassed
 
@@ -120,9 +121,12 @@ func (this *Runner) finalizeReport() {
 	this.printBanner("---")
 	this.printReport(strings.TrimSpace(this.gitReport))
 
+	this.printBanner("Test output reformatted for convenience:")
+	this.printReport(this.testReport)
+
 	if !this.testsPassed {
+		this.printBanner("---")
 		this.printBanner("Test failures repeated for convenience:")
-		fmt.Fprintln(this.finalReport)
 		this.printReport(filterPassingPackages(this.testReport))
 	}
 	if this.testsPassed {
@@ -135,10 +139,10 @@ func filterPassingPackages(report string) string {
 	scanner := bufio.NewScanner(strings.NewReader(report))
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.HasPrefix(line, "ok  \t") {
+		if strings.HasPrefix(line, "ok ") {
 			continue
 		}
-		if strings.HasPrefix(line, "?   \t") {
+		if strings.HasPrefix(line, "?  ") {
 			continue
 		}
 		builder.WriteString(line)
