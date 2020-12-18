@@ -104,7 +104,6 @@ func (this *Runner) Commit() bool {
 func (this *Runner) Revert() bool {
 	this.gitReport += exec.RunFatal("git clean -df", exec.Out(os.Stdout))
 	this.gitReport += exec.RunFatal("git reset --hard", exec.Out(os.Stdout))
-	this.gitReport += exec.RunFatal("pbcopy 'less is more'", exec.Out(os.Stdout))
 	return true
 }
 
