@@ -20,7 +20,7 @@ var Version = "dev"
 
 func main() {
 	flag.Usage = func() {
-		fmt.Fprintln(flag.CommandLine.Output(), "Usage of tcr:")
+		_, _ = fmt.Fprintln(flag.CommandLine.Output(), "Usage of tcr:")
 		flag.CommandLine.PrintDefaults()
 	}
 	command := flag.String("command", orDefault(os.Getenv("TCR_EXECUTABLE"), "make"), "The 'test' command.")
@@ -40,7 +40,7 @@ func orDefault(value, fallback string) string {
 
 func newRunner(version, program string) *Runner {
 	builder := new(strings.Builder)
-	fmt.Fprintf(builder, "tcr [%s]\n", version)
+	_, _ = fmt.Fprintf(builder, "tcr [%s]\n", version)
 	return &Runner{program: program, finalReport: builder}
 }
 
@@ -59,23 +59,12 @@ type Runner struct {
 }
 
 func (this *Runner) TCR() {
-	defer this.resetStopWatch()
-
 	_ = this.Test() &&
 		this.Commit() ||
 		this.Revert()
 
 	this.finalizeReport()
-}
-
-func (this *Runner) resetStopWatch() {
-	this.commitCount = exec.GetTCRCommitCount()
-	URL := fmt.Sprintf(
-		"http://localhost:7890/stopwatch/reset?commits=%d&passed=%t",
-		this.commitCount,
-		this.testsPassed,
-	)
-	_, _ = http.Get(URL)
+	this.resetStopWatch()
 }
 
 func (this *Runner) Test() bool {
@@ -98,6 +87,7 @@ func (this *Runner) Commit() bool {
 	_, _ = exec.Run("git add .")
 	output, _ := exec.Run("git commit -m tcr")
 	this.gitReport = strings.TrimSpace(output)
+	this.commitCount = exec.GetTCRCommitCount()
 	return true
 }
 
@@ -108,7 +98,7 @@ func (this *Runner) Revert() bool {
 }
 
 func (this *Runner) FinalReport() string {
-	return strings.TrimSpace(this.finalReport.String())
+	return strings.TrimSpace(this.finalReport.String()) + "\n"
 }
 
 func (this *Runner) finalizeReport() {
@@ -155,7 +145,7 @@ func (this *Runner) printReport(report string) {
 }
 func (this *Runner) printSummary() {
 	this.printBanner("---")
-	fmt.Fprintf(this.finalReport,
+	_, _ = fmt.Fprintf(this.finalReport,
 		"%s in [%v] with [%d] tcr commit(s) at %s",
 		this.passOrFail(),
 		this.elapsed(),
@@ -182,4 +172,8 @@ func (this *Runner) passOrFail() string {
 
 func getRepositoryRoot() string {
 	return strings.TrimSpace(exec.RunFatal("git rev-parse --show-toplevel"))
+}
+
+func (this *Runner) resetStopWatch() {
+	_, _ = http.Get("http://localhost:7890/stopwatch/reset")
 }
