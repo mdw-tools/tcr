@@ -23,10 +23,12 @@ func main() {
 		_, _ = fmt.Fprintln(flag.CommandLine.Output(), "Usage of tcr:")
 		flag.CommandLine.PrintDefaults()
 	}
+	wd, _ := os.Getwd()
 	command := flag.String("command", orDefault(os.Getenv("TCR_EXECUTABLE"), "make"), "The 'test' command.")
+	working := flag.String("working", orDefault(getRepositoryRoot(), wd), "The working directory.")
 	flag.Parse()
 
-	runner := newRunner(Version, *command)
+	runner := newRunner(Version, *command, *working)
 	runner.TCR()
 	fmt.Print(runner.FinalReport())
 }
@@ -38,14 +40,19 @@ func orDefault(value, fallback string) string {
 	return fallback
 }
 
-func newRunner(version, program string) *Runner {
+func newRunner(version, program, working string) *Runner {
 	builder := new(strings.Builder)
 	_, _ = fmt.Fprintf(builder, "tcr [%s]\n", version)
-	return &Runner{program: program, finalReport: builder}
+	return &Runner{
+		program:     program,
+		working:     working,
+		finalReport: builder,
+	}
 }
 
 type Runner struct {
 	program string
+	working string
 
 	started time.Time
 	stopped time.Time
@@ -71,7 +78,7 @@ func (this *Runner) Test() bool {
 	this.start()
 	defer this.stop()
 
-	output, err := exec.Run(this.program, exec.At(getRepositoryRoot()), exec.Out(os.Stdout))
+	output, err := exec.Run(this.program, exec.At(this.working), exec.Out(os.Stdout))
 	this.testReport = gotest.Format(strings.TrimSpace(output))
 	this.testsPassed = err == nil
 	return this.testsPassed
