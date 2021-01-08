@@ -26,9 +26,10 @@ func main() {
 	wd, _ := os.Getwd()
 	command := flag.String("command", orDefault(os.Getenv("TCR_EXECUTABLE"), "make"), "The 'test' command.")
 	working := flag.String("working", orDefault(getRepositoryRoot(), wd), "The working directory.")
+	dryRun := flag.Bool("dry-run", false, "When set, test but don't commit or revert.")
 	flag.Parse()
 
-	runner := newRunner(Version, *command, *working)
+	runner := newRunner(Version, *command, *working, *dryRun)
 	runner.TCR()
 	fmt.Print(runner.FinalReport())
 }
@@ -40,12 +41,13 @@ func orDefault(value, fallback string) string {
 	return fallback
 }
 
-func newRunner(version, program, working string) *Runner {
+func newRunner(version, program, working string, dryRun bool) *Runner {
 	builder := new(strings.Builder)
 	_, _ = fmt.Fprintf(builder, "tcr [%s]\n", version)
 	return &Runner{
 		program:     program,
 		working:     working,
+		dryRun:      dryRun,
 		finalReport: builder,
 	}
 }
@@ -53,6 +55,7 @@ func newRunner(version, program, working string) *Runner {
 type Runner struct {
 	program string
 	working string
+	dryRun  bool
 
 	started time.Time
 	stopped time.Time
@@ -91,6 +94,10 @@ func (this *Runner) elapsed() time.Duration {
 }
 
 func (this *Runner) Commit() bool {
+	if this.dryRun {
+		this.gitReport += "- dry-run enabled, skipping git commit"
+		return true
+	}
 	_, _ = exec.Run("git add .")
 	output, _ := exec.Run("git commit -m tcr")
 	this.gitReport = strings.TrimSpace(output)
@@ -99,6 +106,10 @@ func (this *Runner) Commit() bool {
 }
 
 func (this *Runner) Revert() bool {
+	if this.dryRun {
+		this.gitReport += "- dry-run enabled, skipping git revert"
+		return true
+	}
 	this.gitReport += exec.RunFatal("git clean -df", exec.Out(os.Stdout))
 	this.gitReport += exec.RunFatal("git reset --hard", exec.Out(os.Stdout))
 	return true
