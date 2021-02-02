@@ -33,7 +33,7 @@ func main() {
 	}
 
 	flag.StringVar(&makefile, "makefile", defaultMakefileContents, "default makefile content")
-	flag.StringVar(&gitignore, "gitignore", ".idea/", ".gitignore file contents")
+	flag.StringVar(&gitignore, "gitignore", defaultGitIgnoreContents, ".gitignore file contents")
 	flag.StringVar(&editor, "editor", "goland", "editor to invoke")
 	flag.StringVar(&module, "module", "", "the go module name (defaults to base name of created directory)")
 
@@ -109,11 +109,7 @@ func initializeGoModule(path string, module string) {
 	}
 	log.Println("Initializing go module:", module)
 	fmt.Println(exec.RunFatal("go mod init " + module, exec.At(path)))
-	fmt.Println(exec.RunFatal("go get github.com/smartystreets/gunit", exec.At(path)))
-	fmt.Println(exec.RunFatal("go get github.com/smartystreets/assertions", exec.At(path)))
-
-	createFile(filepath.Join(path, name+".go"), "package "+name)
-	createFile(filepath.Join(path, name+"_test.go"), "package "+name)
+	createFile(filepath.Join(path, "main.go"), "package "+name)
 }
 func initializeGitRepository(path string) {
 	log.Println("Initializing git repository...")
@@ -126,10 +122,18 @@ func startEditor(editor string, path string) {
 	fmt.Println(exec.RunFatal(editor + " .", exec.At(path)))
 }
 
-const (
-	defaultMakefileContents = `#!/usr/bin/make -f
+var (
+	defaultMakefileContents = strings.TrimSpace(`
+#!/usr/bin/make -f
+
 test:
 	go fmt ./...
-	go test -cover -count=1 -timeout=1s -race -v ./...
-`
+	go mod tidy
+	go test -cover -timeout=1s -race ./...
+`)
+
+	defaultGitIgnoreContents = strings.TrimSpace(`
+.idea/
+*.csv
+`)
 )
