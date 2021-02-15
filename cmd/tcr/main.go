@@ -82,7 +82,11 @@ func (this *Runner) Test() bool {
 	defer this.stop()
 
 	output, err := exec.Run(this.program, exec.At(this.working), exec.Out(os.Stdout))
-	this.testReport = gotest.Format(strings.TrimSpace(output))
+	output = strings.TrimSpace(output)
+	if strings.HasPrefix(output, "go ") {
+		output = gotest.Format(output)
+	}
+	this.testReport = output
 	this.testsPassed = err == nil
 	return this.testsPassed
 
