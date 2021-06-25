@@ -29,11 +29,11 @@ const usageInfo = `
 
 func main() {
 	log.SetFlags(log.Ltime | log.Llongfile)
-	flags := flag.NewFlagSet("go-make", flag.ContinueOnError)
+	flags := flag.NewFlagSet("make-go", flag.ContinueOnError)
 	flags.Usage = func() {
 		_, _ = fmt.Fprintf(
 			flags.Output(),
-			"Usage of go-make (version: %s)\n%s",
+			"Usage of make-go (version: %s)\n%s",
 			Version,
 			usageInfo,
 		)
