@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/mdwhatcott/tcr/exec"
+	"github.com/mdwhatcott/tcr/exec/git"
 	"github.com/mdwhatcott/tcr/gotest"
 )
 
@@ -43,10 +44,10 @@ func main() {
 		os.Exit(1)
 	}
 	args := argsForGoTest(os.Args[1:])
-	working := workingDirectory()
+	path := git.RepositoryRoot()
 
 	fmt.Println(exec.RunFatal("go version"))
-	output := run(working,
+	output := run(path,
 		"go mod tidy",
 		"go fmt ./...",
 		"go vet ./...",
@@ -62,14 +63,6 @@ func argsForGoTest(rawArgs []string) string {
 		args = "-cover ./..."
 	}
 	return args
-}
-
-func workingDirectory() string {
-	working, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return working
 }
 
 func run(working string, commands ...string) string {
