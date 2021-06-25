@@ -4,7 +4,7 @@ import "testing"
 
 func TestFormat(t *testing.T) {
 	reformatted := Format(rawOutput)
-	t.Log("\n\n"+reformatted+"\n\n")
+	t.Log("\n\n" + reformatted + "\n\n")
 }
 
 const formattedOutput = `

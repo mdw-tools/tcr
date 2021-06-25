@@ -25,7 +25,7 @@ var (
 func main() {
 	signals := make(chan os.Signal, 10)
 	signal.Notify(signals, os.Interrupt, os.Kill)
-	go func(){
+	go func() {
 		for s := range signals {
 			log.Printf("[INFO] Shutdown initiated... (received: %s)", s.String())
 			os.Exit(0)

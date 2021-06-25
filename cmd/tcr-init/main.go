@@ -108,7 +108,7 @@ func initializeGoModule(path string, module string) {
 		module = path
 	}
 	log.Println("Initializing go module:", module)
-	fmt.Println(exec.RunFatal("go mod init " + module, exec.At(path)))
+	fmt.Println(exec.RunFatal("go mod init "+module, exec.At(path)))
 	createFile(filepath.Join(path, "main.go"), "package "+name)
 }
 func initializeGitRepository(path string) {
@@ -119,7 +119,7 @@ func initializeGitRepository(path string) {
 }
 func startEditor(editor string, path string) {
 	log.Println("Starting editor...")
-	fmt.Println(exec.RunFatal(editor + " .", exec.At(path)))
+	fmt.Println(exec.RunFatal(editor+" .", exec.At(path)))
 }
 
 var (
