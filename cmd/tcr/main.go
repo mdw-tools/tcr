@@ -14,7 +14,6 @@ import (
 
 	"github.com/mdwhatcott/tcr/exec"
 	"github.com/mdwhatcott/tcr/exec/git"
-	"github.com/mdwhatcott/tcr/gotest"
 )
 
 var Version = "dev"
@@ -83,11 +82,7 @@ func (this *Runner) Test() bool {
 	defer this.stop()
 
 	output, err := exec.Run(this.program, exec.At(this.working), exec.Out(os.Stdout))
-	output = strings.TrimSpace(output)
-	if strings.HasPrefix(output, "go ") {
-		output = gotest.Format(output)
-	}
-	this.testReport = output
+	this.testReport = strings.TrimSpace(output)
 	this.testsPassed = err == nil
 	return this.testsPassed
 
