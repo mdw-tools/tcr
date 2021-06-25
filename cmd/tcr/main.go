@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/mdwhatcott/tcr/exec"
+	"github.com/mdwhatcott/tcr/exec/git"
 	"github.com/mdwhatcott/tcr/gotest"
 )
 
@@ -25,7 +26,7 @@ func main() {
 	}
 	wd, _ := os.Getwd()
 	command := flag.String("command", orDefault(os.Getenv("TCR_EXECUTABLE"), "make"), "The 'test' command.")
-	working := flag.String("working", orDefault(getRepositoryRoot(), wd), "The working directory.")
+	working := flag.String("working", orDefault(git.RepositoryRoot(), wd), "The working directory.")
 	dryRun := flag.Bool("dry-run", false, "When set, test but don't commit or revert.")
 	flag.Parse()
 
@@ -105,7 +106,7 @@ func (this *Runner) Commit() bool {
 	_, _ = exec.Run("git add .")
 	output, _ := exec.Run("git commit -m tcr")
 	this.gitReport = strings.TrimSpace(output)
-	this.commitCount = exec.GetTCRCommitCount()
+	this.commitCount = git.TCRCommitCount()
 	return true
 }
 
@@ -190,10 +191,6 @@ func (this *Runner) passOrFail() string {
 	} else {
 		return "FAIL"
 	}
-}
-
-func getRepositoryRoot() string {
-	return strings.TrimSpace(exec.RunFatal("git rev-parse --show-toplevel"))
 }
 
 func (this *Runner) resetStopWatch() {
