@@ -21,7 +21,6 @@ const usageInfo = `
 	- go version
 	- go mod tidy
 	- go fmt ./...
-	- go vet ./...
 	- go test {args}
 
 	The go test command {args} default to '-cover ./...' if no args are provided.
@@ -50,7 +49,6 @@ func main() {
 	output := run(path,
 		"go mod tidy",
 		"go fmt ./...",
-		"go vet ./...",
 		"go test "+args,
 	)
 	fmt.Println("----")
