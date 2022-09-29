@@ -36,7 +36,7 @@ func Format(output string) string {
 	for l := range lines {
 		bulk, ok := bulkTestOutputLines[l]
 		if ok {
-			lines[l] = bulk.Format(maxResult, maxPackage, maxDuration, maxCoverage)
+			lines[l] = bulk.Format(maxResult, maxPackage, maxDuration, 6)
 		}
 	}
 	return strings.Join(lines, "\n")
@@ -56,8 +56,11 @@ func ParseBulkGoTestLine(line string) BulkGoTestLine {
 	}
 	if strings.Contains(line, "\tcoverage: ") && strings.Contains(line, "% of statements") {
 		result.Coverage = fields[4]
+		for len(result.Coverage) < 6 {
+			result.Coverage = " " + result.Coverage
+		}
 	} else if strings.Contains(line, "[no tests to run]") {
-		result.Coverage = "[no tests to run]"
+		result.Coverage = "[nope]"
 	}
 	return result
 }
