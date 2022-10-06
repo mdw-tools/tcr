@@ -58,7 +58,7 @@ func main() {
 func argsForGoTest(rawArgs []string) string {
 	args := strings.Join(rawArgs, " ")
 	if len(args) == 0 {
-		args = "-cover -short ./..."
+		args = "-coverprofile=/tmp/coverage.out -short -timeout=10s ./..."
 	}
 	return args
 }
