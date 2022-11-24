@@ -25,7 +25,7 @@ func main() {
 	}
 	wd, _ := os.Getwd()
 	command := flag.String("command", orDefault(os.Getenv("TCR_EXECUTABLE"), "make"), "The 'test' command.")
-	working := flag.String("working", orDefault(git.RepositoryRoot(), wd), "The working directory.")
+	working := flag.String("working", wd, "The working directory.")
 	dryRun := flag.Bool("dry-run", false, "When set, test but don't commit or revert.")
 	flag.Parse()
 
