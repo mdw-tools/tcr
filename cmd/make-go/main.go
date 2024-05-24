@@ -40,7 +40,7 @@ func main() {
 		flags.PrintDefaults()
 	}
 	err := flags.Parse(os.Args)
-	if err == flag.ErrHelp {
+	if errors.Is(err, flag.ErrHelp) {
 		os.Exit(1)
 	}
 	args := argsForGoTest(os.Args[1:])
