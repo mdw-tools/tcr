@@ -1,9 +1,10 @@
 package gotest
 
 import (
-	"github.com/mdwhatcott/tcr/should"
 	"strings"
 	"testing"
+
+	"github.com/mdwhatcott/tcr/should"
 )
 
 func TestFormat(t *testing.T) {
@@ -12,88 +13,59 @@ func TestFormat(t *testing.T) {
 	should.So(t, actual, should.Equal, expected)
 }
 
-const formattedOutput = `
-go version go1.15.6 darwin/amd64
-go mod tidy
-go fmt ./...
-go test -timeout=1s -short -cover ./...
-ok   project/code/app/awefads                       100.0%         (cached)
-?    project/code/app/asdf                                 [no tests files]
-ok   project/code/app/internal/asdfad                85.5%         (cached)
-ok   project/code/app/internal/aefasdfcxa           100.0%         (cached)
-ok   project/code/app/internal/asdfefawe            100.0%         (cached)
-ok   project/code/app/internal/asdfefaxfd           100.0%         (cached)
-ok   project/code/app/internal/asdfdd               100.0%         (cached)
-ok   project/code/app/internal/asdfdfd               98.9%         (cached)
-ok   project/code/app/internal/asdfdf               100.0%         (cached)
-?    project/code/app/asdfa                                [no tests files]
-?    project/code/eiei/internal/adfd                       [no tests files]
-?    project/code/eiei/internal/asdfd/werdfd               [no tests files]
-ok   project/code/eiei/internal/efazsd               86.8%         (cached)
-ok   project/code/eiei/internal/asdfdfd/moawerrdels  97.8%         (cached)
---- FAIL: TestBLAH (0.00s)
-    --- FAIL: TestBLAH (0.00s)
-        test_case.go:71: Test definition:
-            /blah_test.go:38
-        fixture.go:43: 
-            Expected: 201
-            Actual:   200
+const formattedOutput = `go mod tidy && go fmt ./...
+go test -timeout=1s -race -covermode=atomic -short -count=1 ./...
+?    root/app/wsx                        [no test files]
+?    root/app/tgb                        [no test files]
+-    root/app                       [missing test files]
+?    root/rfv                            [no test files]
+-    root/http                      [missing test files]
+-    root/http/internal/yui         [missing test files]
+-    root/main/api                  [missing test files]
+-    root/app/hjk                   [missing test files]
+?    root/oiuy                           [no test files]
+-    root/tools/foo                 [missing test files]
+ok   root/app/zxcv            85.5%               0.221s
+--- FAIL: Test (0.01s)
+    --- FAIL: Test/TestBlah (0.00s)
+        handler_test.go:20: Test definition:
+            /path/to/file_test.go:62
+        file_test.go:20: 
+            Expected: hi
+            Actual:   bye
 FAIL
-coverage: 87.4% of statements
-FAIL project/code/eiei/internal/feefzsdffe                           0.355s
-ok   project/code/eiei/internal/ef3raw3r3            66.7%         (cached)
-ok   project/code/eiei/internal/cvzxrfg              82.2%         (cached)
-ok   project/code/eiei/internal/radsfd               75.0%         (cached)
-?    project/code/eiei/awer3adf                            [no tests files]
-?    project/code/adsfads                                  [no tests files]
-ok   project/code/asdfasd/awef                      [nope]         (cached)
-?    project/code/asdfa/asdfe4/aw3r3                       [no tests files]
-?    project/main/zxcvzx                                   [no tests files]
-?    project/main/asdf                                     [no tests files]
-ok   project/main/wefa/w23fa                         61.0%         (cached)
-?    project/main/zxcv/asdfasd                             [no tests files]
+coverage: 94.6% of statements
+FAIL root/app/internal/bar                        0.141s
+ok   root/app/internal/baz   100.0%               0.281s
+ok   root/app/internal/boink  68.8%               0.391s
+ok   root/storage/qwer         0.0%               0.515s
 FAIL
-make: *** [test] Error 1
 `
 
-const rawOutput = `go version go1.15.6 darwin/amd64
-go mod tidy
-go fmt ./...
-go test -timeout=1s -short -cover ./...
-ok  	project/code/app/awefads	(cached)	coverage: 100.0% of statements
-?   	project/code/app/asdf	[no test files]
-ok  	project/code/app/internal/asdfad	(cached)	coverage: 85.5% of statements
-ok  	project/code/app/internal/aefasdfcxa	(cached)	coverage: 100.0% of statements
-ok  	project/code/app/internal/asdfefawe	(cached)	coverage: 100.0% of statements
-ok  	project/code/app/internal/asdfefaxfd	(cached)	coverage: 100.0% of statements
-ok  	project/code/app/internal/asdfdd	(cached)	coverage: 100.0% of statements
-ok  	project/code/app/internal/asdfdfd	(cached)	coverage: 98.9% of statements
-ok  	project/code/app/internal/asdfdf	(cached)	coverage: 100.0% of statements
-?   	project/code/app/asdfa	[no test files]
-?   	project/code/eiei/internal/adfd	[no test files]
-?   	project/code/eiei/internal/asdfd/werdfd	[no test files]
-ok  	project/code/eiei/internal/efazsd	(cached)	coverage: 86.8% of statements
-ok  	project/code/eiei/internal/asdfdfd/moawerrdels	(cached)	coverage: 97.8% of statements
---- FAIL: TestBLAH (0.00s)
-    --- FAIL: TestBLAH (0.00s)
-        test_case.go:71: Test definition:
-            /blah_test.go:38
-        fixture.go:43: 
-            Expected: 201
-            Actual:   200
+const rawOutput = `go mod tidy && go fmt ./...
+go test -timeout=1s -race -covermode=atomic -short -count=1 ./...
+?   	root/app/wsx	[no test files]
+?   	root/app/tgb	[no test files]
+	root/app		coverage: 0.0% of statements
+?   	root/rfv	[no test files]
+	root/http		coverage: 0.0% of statements
+	root/http/internal/yui		coverage: 0.0% of statements
+	root/main/api		coverage: 0.0% of statements
+	root/app/hjk		coverage: 0.0% of statements
+?   	root/oiuy	[no test files]
+	root/tools/foo		coverage: 0.0% of statements
+ok  	root/app/zxcv	0.221s	coverage: 85.5% of statements
+--- FAIL: Test (0.01s)
+    --- FAIL: Test/TestBlah (0.00s)
+        handler_test.go:20: Test definition:
+            /path/to/file_test.go:62
+        file_test.go:20: 
+            Expected: hi
+            Actual:   bye
 FAIL
-coverage: 87.4% of statements
-FAIL	project/code/eiei/internal/feefzsdffe	0.355s
-ok  	project/code/eiei/internal/ef3raw3r3	(cached)	coverage: 66.7% of statements
-ok  	project/code/eiei/internal/cvzxrfg	(cached)	coverage: 82.2% of statements
-ok  	project/code/eiei/internal/radsfd	(cached)	coverage: 75.0% of statements
-?   	project/code/eiei/awer3adf	[no test files]
-?   	project/code/adsfads	[no test files]
-ok  	project/code/asdfasd/awef	(cached)	[no tests to run]
-?   	project/code/asdfa/asdfe4/aw3r3	[no test files]
-?   	project/main/zxcvzx	[no test files]
-?   	project/main/asdf	[no test files]
-ok  	project/main/wefa/w23fa	(cached)	coverage: 61.0% of statements
-?   	project/main/zxcv/asdfasd	[no test files]
-FAIL
-make: *** [test] Error 1`
+coverage: 94.6% of statements
+FAIL	root/app/internal/bar	0.141s
+ok  	root/app/internal/baz	0.281s	coverage: 100.0% of statements
+ok  	root/app/internal/boink	0.391s	coverage: 68.8% of statements
+ok  	root/storage/qwer	0.515s	coverage: 0.0% of statements
+FAIL`

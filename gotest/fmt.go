@@ -9,7 +9,7 @@ func Format(output string) string {
 	lines := strings.Split(output, "\n")
 	bulkTestOutputLines := make(map[int]BulkGoTestLine)
 	for l, line := range lines {
-		if strings.HasPrefix(line, "ok  \t") || strings.HasPrefix(line, "?   \t") || strings.HasPrefix(line, "FAIL\t") {
+		if isBulkGoTestLine(line) {
 			bulkTestOutputLines[l] = ParseBulkGoTestLine(line)
 		}
 	}
@@ -42,7 +42,17 @@ func Format(output string) string {
 	return strings.Join(lines, "\n")
 }
 
+func isBulkGoTestLine(line string) bool {
+	return strings.HasPrefix(line, "ok  \t") ||
+		strings.HasPrefix(line, "?   \t") ||
+		strings.HasPrefix(line, "FAIL\t") ||
+		(strings.HasPrefix(line, "\t") && strings.Contains(line, "coverage:"))
+}
+
 func ParseBulkGoTestLine(line string) BulkGoTestLine {
+	if strings.HasPrefix(line, "\t") {
+		line = "- " + strings.Replace(line, "of statements", "", 1) + " hi [missing test files]"
+	}
 	fields := strings.Fields(line)
 	result := BulkGoTestLine{
 		Original:    line,
@@ -50,7 +60,9 @@ func ParseBulkGoTestLine(line string) BulkGoTestLine {
 		PackageName: fields[1],
 	}
 	if strings.Contains(line, "[no test files]") {
-		result.Duration = "[no tests files]"
+		result.Duration = "[no test files]"
+	} else if strings.Contains(line, "[missing test files]") {
+		result.Duration = "[missing test files]"
 	} else {
 		result.Duration = fields[2]
 	}
