@@ -3,7 +3,7 @@ package git
 import (
 	"strings"
 
-	"github.com/mdwhatcott/tcr/exec"
+	"github.com/mdw-tools/tcr/exec"
 )
 
 func TCRCommitCount() (count int) {

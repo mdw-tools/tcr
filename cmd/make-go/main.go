@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mdwhatcott/tcr/exec"
-	"github.com/mdwhatcott/tcr/gotest"
+	"github.com/mdw-tools/tcr/exec"
+	"github.com/mdw-tools/tcr/gotest"
 )
 
 var Version = "dev"

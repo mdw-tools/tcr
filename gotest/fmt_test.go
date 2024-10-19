@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mdwhatcott/tcr/should"
+	"github.com/mdw-tools/tcr/should"
 )
 
 func TestFormat(t *testing.T) {

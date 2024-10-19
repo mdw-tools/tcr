@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mdwhatcott/tcr/exec"
+	"github.com/mdw-tools/tcr/exec"
 )
 
 var Version = "dev"

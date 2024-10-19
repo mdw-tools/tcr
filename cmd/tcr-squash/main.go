@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/mdwhatcott/tcr/exec"
-	"github.com/mdwhatcott/tcr/exec/git"
+	"github.com/mdw-tools/tcr/exec"
+	"github.com/mdw-tools/tcr/exec/git"
 )
 
 var Version = "dev"
